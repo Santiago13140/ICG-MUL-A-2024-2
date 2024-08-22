@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Graficación de Polígonos en Canvas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #f0f0f0;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        #canvas {
+            border: 1px solid black;
+            margin-top: 20px;
+        }
+        .form-container {
+            margin-bottom: 20px;
+        }
+        .button-container {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="form-container">
+            <h3>Entrada de Polígono</h3>
+            <form id="polygonForm">
+                <label for="sides">Número de lados:</label>
+                <input type="number" id="sides" name="sides" min="3" required><br><br>
+                <label for="length">Largo de lados:</label>
+                <input type="number" id="length" name="length" min="1" required><br><br>
+                <button type="button" onclick="drawPolygon()">Dibujar Polígono</button>
+            </form>
+            <div class="button-container">
+                <button type="button" onclick="clearCanvas()">Borrar Canvas</button>
+            </div>
+        </div>
+        <canvas id="canvas" width="600" height="600"></canvas>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        let polygonVertices = [];
+
+        function drawPolygon() {
+            const sides = parseInt(document.getElementById('sides').value);
+            const length = parseInt(document.getElementById('length').value);
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            const angle = 2 * Math.PI / sides;
+
+            // Calcula los vértices del polígono
+            polygonVertices = [];
+            for (let i = 0; i < sides; i++) {
+                const x = centerX + length * Math.cos(i * angle);
+                const y = centerY + length * Math.sin(i * angle);
+                polygonVertices.push({ x, y });
+            }
+
+            alignPolygonWithBase();
+            centerPolygon();
+            drawPolygonOnCanvas(polygonVertices);
+        }
+
+        function alignPolygonWithBase() {
+            let minYIndex = 0;
+            for (let i = 1; i < polygonVertices.length; i++) {
+                if (polygonVertices[i].y > polygonVertices[minYIndex].y) {
+                    minYIndex = i;
+                }
+            }
+
+            const nextIndex = (minYIndex + 1) % polygonVertices.length;
+            const prevIndex = (minYIndex - 1 + polygonVertices.length) % polygonVertices.length;
+
+            const dxNext = polygonVertices[nextIndex].x - polygonVertices[minYIndex].x;
+            const dyNext = polygonVertices[nextIndex].y - polygonVertices[minYIndex].y;
+            const dxPrev = polygonVertices[prevIndex].x - polygonVertices[minYIndex].x;
+            const dyPrev = polygonVertices[prevIndex].y - polygonVertices[minYIndex].y;
+
+            const angleNext = Math.atan2(dyNext, dxNext);
+            const anglePrev = Math.atan2(dyPrev, dxPrev);
+
+            const angle = (Math.abs(angleNext) < Math.abs(anglePrev)) ? angleNext : anglePrev;
+
+            const centerX = canvas.width / 2;
+            const centerY = canvas.height / 2;
+            polygonVertices = polygonVertices.map(vertex => {
+                const x = vertex.x - centerX;
+                const y = vertex.y - centerY;
+                return {
+                    x: centerX + x * Math.cos(-angle) - y * Math.sin(-angle),
+                    y: centerY + x * Math.sin(-angle) + y * Math.cos(-angle)
+                };
+            });
+        }
+
+        function centerPolygon() {
+            const minX = Math.min(...polygonVertices.map(v => v.x));
+            const maxX = Math.max(...polygonVertices.map(v => v.x));
+            const minY = Math.min(...polygonVertices.map(v => v.y));
+            const maxY = Math.max(...polygonVertices.map(v => v.y));
+
+            const offsetX = (canvas.width - (maxX - minX)) / 2 - minX;
+            const offsetY = (canvas.height - (maxY - minY)) / 2 - minY;
+
+            polygonVertices = polygonVertices.map(vertex => ({
+                x: vertex.x + offsetX,
+                y: vertex.y + offsetY
+            }));
+        }
+
+        function drawPolygonOnCanvas(vertices) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.beginPath();
+            ctx.moveTo(vertices[0].x, vertices[0].y);
+            vertices.forEach(vertex => ctx.lineTo(vertex.x, vertex.y));
+            ctx.closePath();
+            ctx.stroke();
+        }
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+    </script>
+</body>
+</html>
