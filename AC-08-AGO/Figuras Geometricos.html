@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Figuras Geométricas</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+            margin: 0;
+        }
+        h1 {
+            margin-top: 20px;
+            color: #333;
+        }
+        #canvas, #svg {
+            border: 1px solid #000;
+            margin-top: 20px;
+        }
+        #controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-right: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Figuras Geométricas</h1>
+    <div id="controls">
+        <label for="outputType">Tipo de Imagen:</label>
+        <select id="outputType">
+            <option value="canvas">Rasterizada (Canvas)</option>
+            <option value="svg">Vectorizada (SVG)</option>
+        </select>
+
+        <label for="shape">Seleccionar figura:</label>
+        <select id="shape">
+            <option value="rectangulo">Rectángulo</option>
+            <option value="circulo">Círculo</option>
+            <option value="triangulo">Triángulo</option>
+        </select>
+
+        <label for="size">Tamaño:</label>
+        <input type="range" id="size" min="50" max="200" value="100">
+
+        <label for="posX">Posición X:</label>
+        <input type="number" id="posX" value="150" min="0" max="500">
+
+        <label for="posY">Posición Y:</label>
+        <input type="number" id="posY" value="150" min="0" max="500">
+
+        <label for="fillColor">Color de Relleno:</label>
+        <input type="color" id="fillColor" value="#ffcc00">
+
+        <label for="borderColor">Color de Borde:</label>
+        <input type="color" id="borderColor" value="#000000">
+
+        <button onclick="drawShape()">Dibujar Figura</button>
+        <button onclick="clearDrawing()">Borrar Todo</button>
+    </div>
+
+    <canvas id="canvas" width="500" height="500" style="display:none;"></canvas>
+    <svg id="svg" width="500" height="500" style="display:none;"></svg>
+
+    <script>
+        function drawShape() {
+            const outputType = document.getElementById('outputType').value;
+            const shape = document.getElementById('shape').value;
+            const size = parseInt(document.getElementById('size').value);
+            const posX = parseInt(document.getElementById('posX').value);
+            const posY = parseInt(document.getElementById('posY').value);
+            const fillColor = document.getElementById('fillColor').value;
+            const borderColor = document.getElementById('borderColor').value;
+
+            if (outputType === 'canvas') {
+                const canvas = document.getElementById('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.style.display = 'block';
+                document.getElementById('svg').style.display = 'none';
+
+                ctx.fillStyle = fillColor;
+                ctx.strokeStyle = borderColor;
+                ctx.lineWidth = 2;
+
+                switch (shape) {
+                    case 'rectangulo':
+                        ctx.fillRect(posX, posY, size, size);
+                        ctx.strokeRect(posX, posY, size, size);
+                        break;
+                    case 'circulo':
+                        ctx.beginPath();
+                        ctx.arc(posX, posY, size / 2, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.stroke();
+                        break;
+                    case 'triangulo':
+                        ctx.beginPath();
+                        ctx.moveTo(posX, posY);
+                        ctx.lineTo(posX + size, posY);
+                        ctx.lineTo(posX + (size / 2), posY - size);
+                        ctx.closePath();
+                        ctx.fill();
+                        ctx.stroke();
+                        break;
+                }
+            } else if (outputType === 'svg') {
+                const svg = document.getElementById('svg');
+                svg.style.display = 'block';
+                document.getElementById('canvas').style.display = 'none';
+
+                const shapeElement = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+
+                switch (shape) {
+                    case 'rectangulo':
+                        const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+                        rect.setAttribute('x', posX);
+                        rect.setAttribute('y', posY);
+                        rect.setAttribute('width', size);
+                        rect.setAttribute('height', size);
+                        rect.setAttribute('fill', fillColor);
+                        rect.setAttribute('stroke', borderColor);
+                        shapeElement.appendChild(rect);
+                        break;
+                    case 'circulo':
+                        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+                        circle.setAttribute('cx', posX);
+                        circle.setAttribute('cy', posY);
+                        circle.setAttribute('r', size / 2);
+                        circle.setAttribute('fill', fillColor);
+                        circle.setAttribute('stroke', borderColor);
+                        shapeElement.appendChild(circle);
+                        break;
+                    case 'triangulo':
+                        const triangle = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+                        triangle.setAttribute('points', `${posX},${posY} ${posX + size},${posY} ${posX + size / 2},${posY - size}`);
+                        triangle.setAttribute('fill', fillColor);
+                        triangle.setAttribute('stroke', borderColor);
+                        shapeElement.appendChild(triangle);
+                        break;
+                }
+                svg.appendChild(shapeElement);
+            }
+        }
+
+        function clearDrawing() {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            const svg = document.getElementById('svg');
+            while (svg.firstChild) {
+                svg.removeChild(svg.firstChild);
+            }
+        }
+    </script>
+</body>
+</html>
