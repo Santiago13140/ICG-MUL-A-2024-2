@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editor de Figuras Geométricas</title>
+    <style>
+        /* Estilos básicos */
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+            margin: 0;
+        }
+        #canvas {
+            border: 1px solid #000;
+            margin-top: 20px;
+        }
+        #controls {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-right: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="controls">
+        <label for="shape">Seleccionar figura:</label>
+        <select id="shape">
+            <option value="rectangulo">Rectángulo</option>
+            <option value="circulo">Círculo</option>
+            <option value="triangulo">Triángulo</option>
+        </select>
+
+        <label for="size">Tamaño:</label>
+        <input type="range" id="size" min="20" max="200" value="50">
+
+        <label for="posX">Posición X:</label>
+        <input type="number" id="posX" value="50" min="0" max="500">
+
+        <label for="posY">Posición Y:</label>
+        <input type="number" id="posY" value="50" min="0" max="500">
+
+        <label for="fillColor">Color de Relleno:</label>
+        <input type="color" id="fillColor" value="#ff0000">
+
+        <label for="borderColor">Color de Borde:</label>
+        <input type="color" id="borderColor" value="#000000">
+
+        <button onclick="drawShape()">Dibujar Figura</button>
+    </div>
+
+    <canvas id="canvas" width="500" height="500"></canvas>
+
+    <script>
+        function drawShape() {
+            const canvas = document.getElementById('canvas');
+            const ctx = canvas.getContext('2d');
+
+            const shape = document.getElementById('shape').value;
+            const size = parseInt(document.getElementById('size').value);
+            const posX = parseInt(document.getElementById('posX').value);
+            const posY = parseInt(document.getElementById('posY').value);
+            const fillColor = document.getElementById('fillColor').value;
+            const borderColor = document.getElementById('borderColor').value;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Limpiar el canvas
+
+            ctx.fillStyle = fillColor;
+            ctx.strokeStyle = borderColor;
+            ctx.lineWidth = 2;
+
+            switch(shape) {
+                case 'rectangulo':
+                    ctx.fillRect(posX, posY, size, size);
+                    ctx.strokeRect(posX, posY, size, size);
+                    break;
+                case 'circulo':
+                    ctx.beginPath();
+                    ctx.arc(posX, posY, size / 2, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.stroke();
+                    break;
+                case 'triangulo':
+                    ctx.beginPath();
+                    ctx.moveTo(posX, posY);
+                    ctx.lineTo(posX + size, posY);
+                    ctx.lineTo(posX + (size / 2), posY - size);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.stroke();
+                    break;
+                default:
+                    alert('Seleccione una figura válida.');
+            }
+        }
+    </script>
+</body>
+</html>
