@@ -3,6 +3,7 @@ const PoligonoApp = {
     puntos: [],
     centroideVisible: false,
 
+    // Generar puntos aleatorios sin cruces
     generarPuntosAleatorios(numPuntos) {
         const puntos = [];
         const angulos = Array.from({ length: numPuntos }, () => Math.random() * (2 * Math.PI)); 
@@ -14,6 +15,7 @@ const PoligonoApp = {
             puntos.push([x, y]);
         }
 
+        // Ordenar puntos en sentido antihorario
         puntos.sort((a, b) => Math.atan2(a[1], a[0]) - Math.atan2(b[1], b[0]));
         return puntos;
     },
@@ -33,6 +35,7 @@ const PoligonoApp = {
             this.mostrarCentroide();
         }
 
+        // Mostrar tipo de polígono
         document.getElementById('resultado').innerText = "Tipo de polígono: " + this.esConvexa();
     },
 
@@ -63,11 +66,11 @@ const PoligonoApp = {
             x += p[0];
             y += p[1];
         });
-        return [x / puntos.length, y / puntos.length];
+        return [x / puntos.length, y / puntos.length]; // Devuelve las coordenadas del centroide
     },
 
     toggleCentroide() {
-        this.centroideVisible = !this.centroideVisible;  // Acceso correcto a la propiedad
+        this.centroideVisible = !this.centroideVisible;  // Alternar visibilidad del centroide
         this.dibujarPoligono();
     },
 
@@ -81,7 +84,7 @@ const PoligonoApp = {
                 else if (signo !== (cp > 0 ? 1 : -1)) return "Cóncava";
             }
         }
-        return "Convexa";
+        return "Convexa"; // Devuelve el tipo de polígono
     },
 
     crossProduct(o, a, b) {
@@ -90,7 +93,7 @@ const PoligonoApp = {
 
     iniciar(numPuntos = 6) {
         this.puntos = this.generarPuntosAleatorios(numPuntos);
-        this.dibujarPoligono();
+        this.dibujarPoligono(); // Dibuja el polígono al iniciar
     }
 };
 
